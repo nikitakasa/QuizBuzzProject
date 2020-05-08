@@ -37,10 +37,7 @@ public class LambdaFunctionHandler implements RequestHandler<Object, String> {
         JSONObject error=new JSONObject("{\"error\":\"Invalied request\"}");
 	  static AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().build();
 	    static DynamoDB dynamoDB = new DynamoDB(client);
-	    JSONObject json;
-	    static long count;
-	    static boolean flag = true;
-	    
+	    JSONObject json;	    
     @Override
     public String handleRequest(Object input, Context cxt) {
      context=cxt;
@@ -64,7 +61,7 @@ public class LambdaFunctionHandler implements RequestHandler<Object, String> {
 			try {
 				switch(input.getString("name")) {
 				case "getQuiz": return getQuiz(1);
-				case "getUser":return getUser(input.getString("userName"));
+				case "getUser":return getUser(input.getString("userName").toLowerCase());
 				case "getHistory":return getHistory(input.getString("userId"));
 				case "setScore":return setScore(input.getString("userId"),input.getNumber("score"),input.getNumber("clientId"));
 				default:return error;
@@ -76,13 +73,14 @@ public class LambdaFunctionHandler implements RequestHandler<Object, String> {
 		}
 		return error;
 	}
+	
 	private boolean setScore(String userId, Number score, Number clientId){
 		Table table = dynamoDB.getTable("user");
 		try {
 			Item item=table.getItem("userId",userId);
 			
 			  Date today = new Date();
-			 DateFormat df = new SimpleDateFormat("dd-MM-yy HH:mm:SS z");
+			 DateFormat df = new SimpleDateFormat("MMMM dd, yyyy hh:mm a");
 		        df.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
 				String IST = df.format(today);
 			 
